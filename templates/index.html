@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>The World Cup Gazette</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:wght@400;700;900&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        [data-theme="light"] {
+            --bg-page:      #e8e0d0;
+            --bg-surface:   #f5f0e8;
+            --bg-hover:     #ede8da;
+            --text-primary: #1a1a1a;
+            --text-muted:   #555;
+            --text-faint:   #888;
+            --border-heavy: #1a1a1a;
+            --border-mid:   #aaa;
+            --border-light: #ccc;
+            --border-faint: #ddd;
+            --tag-bg:       #1a1a1a;
+            --tag-text:     #f5f0e8;
+            --score-bg:     #1a1a1a;
+            --score-text:   #f5f0e8;
+        }
+        [data-theme="dark"] {
+            --bg-page:      #0d0d0d;
+            --bg-surface:   #141414;
+            --bg-hover:     #1e1e1e;
+            --text-primary: #f0e6d0;
+            --text-muted:   #c9a84c;
+            --text-faint:   #666;
+            --border-heavy: #c9a84c;
+            --border-mid:   #333;
+            --border-light: #2a2a2a;
+            --border-faint: #222;
+            --tag-bg:       #c9a84c;
+            --tag-text:     #0d0d0d;
+            --score-bg:     #c9a84c;
+            --score-text:   #0d0d0d;
+        }
+
+        body {
+            font-family: 'Source Serif 4', serif;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        header {
+            background: var(--bg-surface);
+            border-bottom: 4px double var(--border-heavy);
+            padding: 24px 40px 16px;
+            text-align: center;
+            position: relative;
+            transition: background 0.4s ease, border-color 0.4s ease;
+            animation: fadeSlideDown 0.7s ease both;
+        }
+        .paper-name {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 4em;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+            line-height: 1;
+            transition: color 0.4s ease;
+        }
+        .dateline {
+            font-size: 0.72em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 8px;
+            border-top: 1px solid var(--border-heavy);
+            border-bottom: 1px solid var(--border-heavy);
+            padding: 4px 0;
+            transition: color 0.4s ease, border-color 0.4s ease;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            border: none;
+            padding: 8px 14px;
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.72em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
+        }
+        .theme-toggle:hover { transform: translateY(-2px); }
+
+        main { max-width: 1300px; margin: 0 auto; padding: 30px 24px; }
+
+        .section-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.7em;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-top: 2px solid var(--border-heavy);
+            border-bottom: 1px solid var(--border-mid);
+            padding: 5px 0;
+            margin-bottom: 20px;
+            transition: color 0.4s ease, border-color 0.4s ease;
+        }
+
+        .results-row {
+            display: flex;
+            margin-bottom: 40px;
+            border: 1px solid var(--border-light);
+            overflow-x: auto;
+        }
+        .result-card {
+            background: var(--bg-surface);
+            padding: 16px 20px;
+            min-width: 200px;
+            flex: 1;
+            border-right: 1px solid var(--border-light);
+            transition: background 0.2s ease;
+            cursor: default;
+            text-align: center;
+        }
+        .result-card:last-child { border-right: none; }
+        .result-card:hover { background: var(--bg-hover); }
+        .result-group {
+            font-size: 0.62em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-faint);
+            margin-bottom: 10px;
+        }
+        .result-teams {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .result-team {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.85em;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+        }
+        .result-team img {
+            width: 24px;
+            height: 16px;
+            object-fit: cover;
+            border: 0.5px solid var(--border-faint);
+            border-radius: 1px;
+        }
+        .result-score {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            font-weight: 900;
+            background: var(--score-bg);
+            color: var(--score-text);
+            padding: 4px 10px;
+            letter-spacing: 3px;
+            transition: background 0.4s, color 0.4s;
+        }
+        .result-date {
+            font-size: 0.65em;
+            color: var(--text-faint);
+            font-style: italic;
+        }
+
+        .matches-scroll {
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 40px;
+            border: 1px solid var(--border-light);
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-heavy) var(--bg-surface);
+        }
+        .match-card {
+            background: var(--bg-surface);
+            padding: 16px 20px;
+            min-width: 210px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border-light);
+            transition: background 0.2s ease, transform 0.2s ease;
+            cursor: default;
+            animation: fadeIn 0.5s ease both;
+        }
+        .match-card:last-child { border-right: none; }
+        .match-card:hover { background: var(--bg-hover); transform: translateY(-3px); }
+        .match-group {
+            font-size: 0.65em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-faint);
+            margin-bottom: 8px;
+        }
+        .match-teams {
+            font-family: 'Playfair Display', serif;
+            font-size: 1em;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        .match-teams .vs {
+            font-weight: 400;
+            font-style: italic;
+            color: var(--text-faint);
+            font-size: 0.85em;
+        }
+        .match-meta {
+            font-size: 0.72em;
+            color: var(--text-faint);
+            line-height: 2;
+            font-style: italic;
+        }
+        .match-meta-row { display: flex; align-items: center; gap: 5px; }
+        .live-badge {
+            display: inline-block;
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            font-size: 0.6em;
+            padding: 2px 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            border-top: 1px solid var(--border-light);
+            border-left: 1px solid var(--border-light);
+        }
+        .group-card {
+            background: var(--bg-surface);
+            padding: 18px 20px;
+            border-right: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.2s ease, transform 0.2s ease;
+            animation: fadeIn 0.5s ease both;
+        }
+        .group-card:hover { background: var(--bg-hover); transform: translateY(-2px); }
+        .group-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1em;
+            font-weight: 900;
+            border-bottom: 2px double var(--border-heavy);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            transition: border-color 0.4s ease;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            font-size: 0.65em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-faint);
+            text-align: left;
+            padding: 3px 4px;
+            font-weight: 400;
+            font-style: italic;
+        }
+        td {
+            padding: 6px 4px;
+            font-size: 0.82em;
+            border-bottom: 0.5px solid var(--border-faint);
+            color: var(--text-primary);
+            transition: color 0.4s ease;
+        }
+        tr:last-child td { border-bottom: none; }
+        tbody tr { transition: background 0.15s; }
+        tbody tr:hover { background: var(--bg-hover); }
+        .pts-col { font-weight: 700; }
+        tbody tr:nth-child(1) td:first-child,
+        tbody tr:nth-child(2) td:first-child {
+            border-left: 2px solid var(--border-heavy);
+            padding-left: 6px;
+        }
+        .team-cell { display: flex; align-items: center; gap: 7px; }
+        .team-cell img {
+            width: 20px;
+            height: 14px;
+            object-fit: cover;
+            border: 0.5px solid var(--border-faint);
+            border-radius: 1px;
+            flex-shrink: 0;
+        }
+
+        footer {
+            text-align: center;
+            border-top: 3px double var(--border-heavy);
+            padding: 16px;
+            font-size: 0.72em;
+            color: var(--text-faint);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-style: italic;
+            background: var(--bg-surface);
+            margin-top: 40px;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .group-card:nth-child(1)  { animation-delay: 0.05s; }
+        .group-card:nth-child(2)  { animation-delay: 0.10s; }
+        .group-card:nth-child(3)  { animation-delay: 0.15s; }
+        .group-card:nth-child(4)  { animation-delay: 0.20s; }
+        .group-card:nth-child(5)  { animation-delay: 0.25s; }
+        .group-card:nth-child(6)  { animation-delay: 0.30s; }
+        .group-card:nth-child(7)  { animation-delay: 0.35s; }
+        .group-card:nth-child(8)  { animation-delay: 0.40s; }
+        .group-card:nth-child(9)  { animation-delay: 0.45s; }
+        .group-card:nth-child(10) { animation-delay: 0.50s; }
+        .group-card:nth-child(11) { animation-delay: 0.55s; }
+        .group-card:nth-child(12) { animation-delay: 0.60s; }
+        .match-card:nth-child(1) { animation-delay: 0.05s; }
+        .match-card:nth-child(2) { animation-delay: 0.12s; }
+        .match-card:nth-child(3) { animation-delay: 0.19s; }
+        .match-card:nth-child(4) { animation-delay: 0.26s; }
+        .match-card:nth-child(5) { animation-delay: 0.33s; }
+        .match-card:nth-child(6) { animation-delay: 0.40s; }
+        .match-card:nth-child(7) { animation-delay: 0.47s; }
+        .match-card:nth-child(8) { animation-delay: 0.54s; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="paper-name">The World Cup Gazette</div>
+    <div class="dateline">
+        Est. 2026 &nbsp;·&nbsp; USA · Canada · Mexico &nbsp;·&nbsp; 48 Nations · 104 Matches &nbsp;·&nbsp; June 11 – July 19
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+        <i data-lucide="sun" style="width:13px;height:13px;" id="themeIcon"></i>
+        <span id="themeLabel">Light</span>
+    </button>
+</header>
+
+<main>
+
+    {% if recent_finished %}
+    <div class="section-header">Recent Results</div>
+    <div class="results-row">
+        {% for match in recent_finished %}
+        <div class="result-card">
+            <div class="result-group">{{ match.group_label }}</div>
+            <div class="result-teams">
+                <div class="result-team">
+                    {% if match.homeTeam.flag_url %}
+                    <img src="{{ match.homeTeam.flag_url }}" alt="{{ match.homeTeam.shortName }}">
+                    {% endif %}
+                    {{ match.homeTeam.shortName }}
+                </div>
+                <div class="result-score" id="score-{{ loop.index }}">
+                    {{ match.score.fullTime.home }} – {{ match.score.fullTime.away }}
+                </div>
+                <div class="result-team">
+                    {% if match.awayTeam.flag_url %}
+                    <img src="{{ match.awayTeam.flag_url }}" alt="{{ match.awayTeam.shortName }}">
+                    {% endif %}
+                    {{ match.awayTeam.shortName }}
+                </div>
+            </div>
+            <div class="result-date">{{ match.formatted_time }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="section-header">Upcoming Fixtures</div>
+    <div class="matches-scroll">
+        {% for match in upcoming %}
+        <div class="match-card">
+            {% if match.status == "IN_PLAY" %}
+            <div class="live-badge">Live</div>
+            {% endif %}
+            <div class="match-group">{{ match.group_label }}</div>
+            <div class="match-teams">
+                {{ match.homeTeam.shortName }}
+                <span class="vs"> vs </span>
+                {{ match.awayTeam.shortName }}
+            </div>
+            <div class="match-meta">
+                <div class="match-meta-row">
+                    <i data-lucide="clock" style="width:11px;height:11px;"></i>
+                    {{ match.formatted_time }}
+                </div>
+                <div class="match-meta-row">
+                    <i data-lucide="map-pin" style="width:11px;height:11px;"></i>
+                    {{ match.venue }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="section-header">Group Standings</div>
+    <div class="groups-grid">
+        {% for group in standings %}
+        <div class="group-card">
+            <div class="group-title">{{ group.group.replace("GROUP_", "Group ") }}</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th colspan="2">Team</th>
+                        <th>P</th>
+                        <th>W</th>
+                        <th>D</th>
+                        <th>L</th>
+                        <th>Pts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team in group.table %}
+                    <tr>
+                        <td>{{ team.position }}</td>
+                        <td colspan="2">
+                            <div class="team-cell">
+                                {% if team.team.flag_url %}
+                                <img src="{{ team.team.flag_url }}" alt="{{ team.team.shortName }}">
+                                {% endif %}
+                                {{ team.team.shortName }}
+                            </div>
+                        </td>
+                        <td>{{ team.playedGames }}</td>
+                        <td>{{ team.won }}</td>
+                        <td>{{ team.draw }}</td>
+                        <td>{{ team.lost }}</td>
+                        <td class="pts-col">{{ team.points }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+
+</main>
+
+<footer>
+    Data via football-data.org &nbsp;·&nbsp; Built with Flask &nbsp;·&nbsp; All times displayed in local time
+</footer>
+
+<script>
+    lucide.createIcons();
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateToggle(newTheme);
+    }
+    function updateToggle(theme) {
+        document.getElementById('themeLabel').textContent = theme === 'dark' ? 'Dark' : 'Light';
+        document.getElementById('themeIcon').setAttribute('data-lucide', theme === 'dark' ? 'moon' : 'sun');
+        lucide.createIcons();
+    }
+    const saved = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    updateToggle(saved);
+
+    function animateScore(el, homeGoals, awayGoals) {
+        const steps = 20;
+        const duration = 800;
+        const interval = duration / steps;
+        let step = 0;
+        const timer = setInterval(() => {
+            step++;
+            const progress = step / steps;
+            el.textContent = `${Math.round(progress * homeGoals)} – ${Math.round(progress * awayGoals)}`;
+            if (step >= steps) {
+                clearInterval(timer);
+                el.textContent = `${homeGoals} – ${awayGoals}`;
+            }
+        }, interval);
+    }
+
+    document.querySelectorAll('[id^="score-"]').forEach(el => {
+        const parts = el.textContent.trim().split('–').map(s => parseInt(s.trim()) || 0);
+        if (parts.length === 2) {
+            el.textContent = '0 – 0';
+            setTimeout(() => animateScore(el, parts[0], parts[1]), 600);
+        }
+    });
+</script>
+
+</body>
+</html>
